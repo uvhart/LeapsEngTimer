@@ -9621,6 +9621,8 @@ if (timerValue != null) {
   document.getElementById("game-length-sentence").innerHTML = "The game is " + parseInt(timerValue) + " minutes long.";
 }
 
+var gameVersion = searchParams.get("gameVersion");
+
 var galleryShapes = [];
 var searchScore = 0.33;
 var redmetricsConnection = void 0;
@@ -9649,9 +9651,11 @@ var playerData = {
   }
 };
 
+var gameVersionId = !!gameVersion ? gameVersion : RED_METRICS_GAME_VERSION;
+
 redmetricsConnection = redmetrics.prepareWriteConnection({
   host: RED_METRICS_HOST,
-  gameVersionId: RED_METRICS_GAME_VERSION,
+  gameVersionId: gameVersionId,
   player: playerData
 });
 redmetricsConnection.connect().then(function () {
