@@ -142,8 +142,9 @@ a {
 
 #done-adding {
   position: absolute;
-  top: 420px;
+  top: 590px;
   right: 10px;
+  left: 400px;
 }
 
 #gallery-instructions {
