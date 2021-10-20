@@ -9634,7 +9634,7 @@ var sceneStartedAt = 0;
 
 var app$1 = new PIXI.Application({
   width: 960,
-  height: 540,
+  height: 670,
   view: document.getElementById("pixi-canvas"),
   antialias: true
 });

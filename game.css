@@ -15,6 +15,7 @@ button {
   color: white;
   font-size: 0.7em;
   cursor: pointer;
+  position: relative;
 }
 
 button:hover {
@@ -57,7 +58,6 @@ a {
 
 #game-container {
   position: relative;
-
   transform-origin: 0% 0%;
   -webkit-transform-origin: 0% 0%;
   -ms-transform-origin: 0% 0%;
@@ -97,7 +97,7 @@ a {
   top: 0;
   left: 0;
   width: 960px;
-  height: 540px;
+  height: 670px;
 }
 
 #fullscreen-button {
@@ -246,7 +246,7 @@ a {
 }
 
 #thanks-block {
-  height: 540px;
+  height: 670px;
 }
 
 #stuck-message {
