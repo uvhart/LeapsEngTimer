@@ -8124,7 +8124,17 @@ function getStartingScene(defaultScene) {
 }
 
 function provideNextScene(sceneTransitions, currentScene, requestedTransition) {
-  if (currentScene in sceneTransitions) return sceneTransitions[currentScene];
+  if (currentScene in sceneTransitions){
+    
+    if (requestedTransition === 'next'){
+      return sceneTransitions[currentScene][0]
+    }
+    else if (requestedTransition === 'skip')
+    {
+      return sceneTransitions[currentScene][1]
+    }
+    
+  } 
 
   console.error("No transition from", currentScene, "with transition", requestedTransition);
   return null;
@@ -8488,7 +8498,7 @@ function changeScene(newSceneName) {
   sceneStartedAt = Date.now();
   currentScene.setup();
   currentScene.update(0);
-
+  
   redmetricsConnection.postEvent({
     type: metricsStartSceneEvents[newSceneName]
   });
@@ -8517,11 +8527,16 @@ var IntroScene = function (_util$Entity) {
   createClass(IntroScene, [{
     key: "setup",
     value: function setup() {
+      if (localStorage.getItem('active') === 'results'){
+        this.skip = true;
+        return changeScene(localStorage.getItem('active'))
+      }
       document.getElementById("intro-gui").style.display = "block";
 
       document.getElementById("user-provided-id").addEventListener("keyup", this.onSetUserProvidedId.bind(this));
 
       this.done = false;
+      this.skip = false;
       document.getElementById("done-intro").disabled = true;
       document.getElementById("done-intro").addEventListener("click", this.onDone.bind(this));
     }
@@ -8533,7 +8548,7 @@ var IntroScene = function (_util$Entity) {
   }, {
     key: "requestedTransition",
     value: function requestedTransition(timeSinceStart) {
-      return this.done ? "next" : null;
+      return this.done ? "next" : this.skip? "skip" : null;
     }
   }, {
     key: "onSetUserProvidedId",
@@ -8681,6 +8696,7 @@ var BlockScene = function (_util$Entity3) {
     value: function setup(isTraining) {
       this.isTraining = isTraining;
       this.done = false;
+      this.skip = false;
       this.draggingBlock = null;
       this.draggingBlockStartGridPosition = null;
       this.startDragTime = null;
@@ -8805,6 +8821,13 @@ var BlockScene = function (_util$Entity3) {
      * This starts the 10 seconds timer that is after the 60 seconds timer for choosing blocks.
      */
 
+  },{
+    key: "onDoneSelection",
+    value: function onDoneSelection() {
+      sendTrigger("galleryDone");
+      this.skip = true;
+      return changeScene("results")
+    }
   }, {
     key: "startSecondTimer",
     value: function startSecondTimer() {
@@ -8822,12 +8845,21 @@ var BlockScene = function (_util$Entity3) {
             self.disableBlocks();
             this.timesUp = true;
             document.getElementById("add-shape").disabled = true;
+            localStorage.setItem('active', "results")
             if (galleryShapes.length < 5) {
               document.getElementById("stuck-message").style.display = "block";
+              document.getElementById("throw-out").addEventListener("click", function (e) {
+                return self.onDoneSelection();
+              });
               document.getElementById("done-adding").disabled = true;
             } else {
               document.getElementById("continue-message").style.display = "block";
-              document.getElementById("done-adding").disabled = false;
+              document.getElementById("throw-out-2").style.display = 'block';
+              document.getElementById("throw-out-2").addEventListener("click", function (e) {
+                return self.onDoneSelection();
+              });
+              console.log("here")
+              document.getElementById("done-adding").disabled = true;
             }
           }
         }, 1000);
@@ -8845,6 +8877,7 @@ var BlockScene = function (_util$Entity3) {
         document.getElementById("add-shape").disabled = true;
         if (galleryShapes.length < 5) {
           document.getElementById("stuck-message").style.display = "block";
+          document.getElementById("thrown-out").addEventListener("click", this.onDoneSelection.bind(this));
           document.getElementById("done-adding").disabled = true;
         } else {
           document.getElementById("continue-message").style.display = "block";
@@ -8897,7 +8930,7 @@ var BlockScene = function (_util$Entity3) {
   }, {
     key: "requestedTransition",
     value: function requestedTransition(timeSinceStart) {
-      return this.done ? "next" : null;
+      return this.done ? "next" : this.skip? 'skip' : null;
     }
   }, {
     key: "highlightMovableBlocks",
@@ -9416,6 +9449,7 @@ var GalleryScene = function (_util$Entity4) {
       sceneLayer.removeChild(this.container);
       document.getElementById("selection-gui").style.display = "none";
     }
+    
   }, {
     key: "requestedTransition",
     value: function requestedTransition(timeSinceStart) {
@@ -9463,12 +9497,15 @@ var GalleryScene = function (_util$Entity4) {
   }, {
     key: "onDoneSelection",
     value: function onDoneSelection() {
+      console.log("got here 1")
       var selectedShapes = _.map(this.selectedIndexes, function (index) {
         return convertShapeToArray(galleryShapes[index]);
       });
+      console.log('got here 2')
 
       sendTrigger("galleryDone");
 
+      console.log('got here 3')
       redmetricsConnection.postEvent({
         type: "done selection",
         customData: {
@@ -9476,8 +9513,9 @@ var GalleryScene = function (_util$Entity4) {
           shapes: selectedShapes
         }
       });
-
+      console.log('got here 4')
       this.done = true;
+      console.log('got here 5')
     }
   }]);
   return GalleryScene;
@@ -9575,6 +9613,12 @@ var ResultsScene = function (_util$Entity5) {
         window.location.replace(link);
       }
     }
+  },{
+    key: "update",
+    value: function update(){
+      //changeScene(localStorage.getItem('active'))
+    }
+    
   }, {
     key: "teardown",
     value: function teardown() {
@@ -9594,10 +9638,10 @@ var scenes = {
 };
 
 var sceneTransitions = {
-  intro: "training",
-  training: "block",
-  block: "gallery",
-  gallery: "results"
+  intro: ["training", "results"],
+  training: ["block"],
+  block: ["gallery", "results"],
+  gallery: ["results"],
 };
 
 var metricsStartSceneEvents = {
@@ -9678,6 +9722,8 @@ resizeGame(app$1);
 window.addEventListener("resize", function () {
   return resizeGame(app$1);
 });
+
+
 
 // // Debugging code
 // for(let i = 0; i < 120; i++) {
