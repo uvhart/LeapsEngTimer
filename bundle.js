@@ -8858,7 +8858,6 @@ var BlockScene = function (_util$Entity3) {
               document.getElementById("throw-out-2").addEventListener("click", function (e) {
                 return self.onDoneSelection();
               });
-              console.log("here")
               document.getElementById("done-adding").disabled = true;
             }
           }
@@ -9497,15 +9496,12 @@ var GalleryScene = function (_util$Entity4) {
   }, {
     key: "onDoneSelection",
     value: function onDoneSelection() {
-      console.log("got here 1")
       var selectedShapes = _.map(this.selectedIndexes, function (index) {
         return convertShapeToArray(galleryShapes[index]);
       });
-      console.log('got here 2')
 
       sendTrigger("galleryDone");
 
-      console.log('got here 3')
       redmetricsConnection.postEvent({
         type: "done selection",
         customData: {
@@ -9513,9 +9509,7 @@ var GalleryScene = function (_util$Entity4) {
           shapes: selectedShapes
         }
       });
-      console.log('got here 4')
       this.done = true;
-      console.log('got here 5')
     }
   }]);
   return GalleryScene;
@@ -9587,7 +9581,7 @@ var ResultsScene = function (_util$Entity5) {
         document.getElementById("code").innerText = redmetricsConnection.playerId ? redmetricsConnection.playerId.substr(-8) : "Unknown";
 
         // Setup followup link
-        if (searchParams.has("followupLink")) {
+        if (searchParams.has("followupLink") && (!localStorage.getItem('active'))) {
           var expId = searchParams.get("expId") || searchParams.get("expID") || "";
           var userId = searchParams.get("userId") || searchParams.get("userID") || "";
           var metricsId = redmetricsConnection.playerId || "";
@@ -9605,7 +9599,7 @@ var ResultsScene = function (_util$Entity5) {
       // Redirecting to a link after the experiment. This is different from the one above
       // because it doensn't have the parameters. 
       // TODO delete one of them.
-      if (searchParams.has("urlNextLink")) {
+      if (searchParams.has("urlNextLink") && (!localStorage.getItem('active'))) {
         var link = searchParams.get("urlNextLink");
         if (!_.contains(link, "http://")) {
           link = "http://" + link;
@@ -9613,12 +9607,6 @@ var ResultsScene = function (_util$Entity5) {
         window.location.replace(link);
       }
     }
-  },{
-    key: "update",
-    value: function update(){
-      //changeScene(localStorage.getItem('active'))
-    }
-    
   }, {
     key: "teardown",
     value: function teardown() {
