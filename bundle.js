@@ -9531,11 +9531,18 @@ var ResultsScene = function (_util$Entity5) {
 
       document.getElementById("results-gui").style.display = "block";
 
-      if (!showResults) {
+      if (!showResults && (searchParams.has("followupLink") && (!localStorage.getItem('active')))) {
         document.getElementById("results-block").style.display = "none";
-      } else {
+        document.getElementById("thanks-block-timeout").style.display = "none";
+      } 
+      else if (!showResults){
+        document.getElementById("results-block").style.display = "none";
         document.getElementById("thanks-block").style.display = "none";
-
+      }
+      else{
+        document.getElementById("thanks-block-timeout").style.display = "none";
+        document.getElementById("thanks-block").style.display = "none";
+        
         var slider = new PIXI.Sprite(app$1.loader.resources["images/slider.png"].texture);
         slider.anchor.set(0.5);
         slider.position.set(app$1.renderer.width / 2, 145);

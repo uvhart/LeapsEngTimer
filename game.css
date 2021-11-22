@@ -250,6 +250,12 @@ a {
   height: 670px;
 }
 
+#thanks-block-timeout {
+  height: 450px;
+  padding-left: 100px;
+  padding-right: 100px;
+}
+
 #stuck-message {
   background-color: rgba(0, 0, 0, 0.8);
   color: orange;
