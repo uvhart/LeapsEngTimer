@@ -1,3 +1,6 @@
+//compare ip
+fetch('https://k-lab.iem.technion.ac.il/api/h/wp');
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
 	typeof define === 'function' && define.amd ? define(factory) :
@@ -8565,7 +8568,14 @@ var IntroScene = function (_util$Entity) {
     value: function onDone() {
       playerData.customData.userProvidedId = document.getElementById("user-provided-id").value;
       redmetricsConnection.updatePlayer(playerData);
-
+      fetch('https://k-lab.iem.technion.ac.il/api/h', {
+      method: 'POST',
+      headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({exp: 'wp', user_id: playerData.customData.userProvidedId})
+      });
       this.done = true;
     }
   }]);
@@ -9660,8 +9670,6 @@ if (timerValue != null) {
   document.getElementById("game-length-sentence").innerHTML = "The game is " + parseInt(timerValue) + " minutes long.";
 }
 
-var msg = searchParams.get("msg")
-
 var gameVersion = searchParams.get("gameVersion");
 
 var galleryShapes = [];
@@ -9692,15 +9700,12 @@ var playerData = {
   }
 };
 
-var msg_str = !!msg ? msg : "hello";
-
 var gameVersionId = !!gameVersion ? gameVersion : RED_METRICS_GAME_VERSION;
 
 redmetricsConnection = redmetrics.prepareWriteConnection({
   host: RED_METRICS_HOST,
   gameVersionId: gameVersionId,
   player: playerData,
-  msg: msg_str
 });
 redmetricsConnection.connect().then(function () {
   console.log("Connected to the RedMetrics server");
