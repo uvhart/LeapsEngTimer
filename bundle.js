@@ -9302,7 +9302,7 @@ var BlockScene = function (_util$Entity3) {
       sendTrigger("endGame");
 
       this.done = true;
-
+      this.isTraining = true;
       searchScore = calculateSearchScore();
     }
   }, {
